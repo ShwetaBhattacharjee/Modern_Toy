@@ -1,0 +1,6 @@
+flex flex-row justify-center items-center
+               w-full bg-blue-500 hover:bg-[#230e6e]
+               py-2 px-5 rounded-full  mt-5
+
+truffle networks --clean
+truffle migrate --reset

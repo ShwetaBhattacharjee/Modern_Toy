@@ -1,0 +1,95 @@
+/*Author:Shweta Bhattacharjee
+Date:31-01-2023*/
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap');
+
+
+* html {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Open Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.dot {
+  height: 10px;
+  width: 10px;
+  background-color:orangered;
+  border-radius: 50%;
+  display: inline-block;
+}
+.gradient-bg-hero {
+  background-color:black;
+  background-image: radial-gradient(
+      at 0% 0%,
+      hsl(302deg 25% 18%) 0,
+      transparent 50%
+    ),
+    radial-gradient(at 50% 0%, rgb(74, 98, 218) 0, transparent 50%),
+    radial-gradient(at 100% 0%, rgb(40, 37, 188) 0, transparent 50%);
+  
+}
+.gradient-bg-hero1{
+  width: 100%;
+  height: auto;
+  background-repeat: no-repeat;
+  background-size:cover;
+  /*background-image: url('..\assets\bg.png');*/
+}
+.gradient-bg-toys {
+  background-color: #0f0e13;
+  background-image: radial-gradient(
+      at 50% 50%,
+      hsl(302deg 25% 18%) 0,
+      transparent 50%
+    ),
+    radial-gradient(at 50% 0%, rgb(74, 98, 218) 0, transparent 50%),
+    radial-gradient(at 100% 0%, rgb(40, 37, 188) 0, transparent 50%);
+}
+
+.gradient-bg-footer {
+  background-color: #151c25;
+  background-image: radial-gradient(
+      at 0% 100%,
+      rgb(20, 10, 97) 0,
+      transparent 53%
+    ),
+    radial-gradient(at 50% 150%, rgb(127, 75, 180) 0, transparent 50%);
+}
+
+.text-gradient {
+  background: -webkit-linear-gradient(#eee, #333);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.lds-dual-ring {
+  display: inline-block;
+}
+.lds-dual-ring:after {
+  content: ' ';
+  display: block;
+  width: 64px;
+  height: 64px;
+  margin: 8px;
+  border-radius: 50%;
+  border: 6px solid #fff;
+  border-color: #fff transparent #fff transparent;
+  animation: lds-dual-ring 1.2s linear infinite;
+}
+@keyframes lds-dual-ring {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

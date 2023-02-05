@@ -149,7 +149,7 @@ const client = new NFTStorage({ token: NFT_STORAGE_KEY })
                 alt="NFT"
                 className="h-full w-full object-cover cursor-pointer"
                 src={
-                  imgBase64
+                 imgHero || imgBase64
                 }
               />
             </div>

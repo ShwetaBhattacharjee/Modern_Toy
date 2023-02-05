@@ -18,12 +18,12 @@ const Hero = () => {
             <img className= "w-36 cursor-pointer mt-5" src={logo} alt="logo"/>
         </div>
         <p className='text-white font-semibold text-sm mt-5'>
-            Games and Art
+        A Moments of Play
         </p>
         
         <p className=' text-white font-semibold text-sm mt-5 '>
-        Our objective and promise is to create great material for our community and clients that depict and brings life to ideas, 
-        dreams, and goals of our community, staff, and clients, as well as any inspiration we encounter along the way.
+       <span> There are many colorful playing toys, educational toys, and dolls in this shop.</span>
+       <span>A variety of good toys and materials increase the imagination of the children.</span> 
         </p>
         
         </div>

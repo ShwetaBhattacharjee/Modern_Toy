@@ -4,5 +4,6 @@ To run this project :
 * Ganache-cli -d
 * truffle networks --clean
 * truffle migrate --reset
+yarn start
   
 

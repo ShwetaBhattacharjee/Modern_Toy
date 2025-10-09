@@ -17,7 +17,7 @@ const Hero = () => {
         <div className='md:flex-[1] mt-5 flex-initial justify-center items-center'>
             <img className= "w-36 cursor-pointer mt-5" src={logo} alt="logo"/>
         </div>
-        <p className='text-white font-semibold text-sm mt-5'>
+        <p className=' font-semibold text-sm mt-5 text-white'>
         A Moments of Play
         </p>
         

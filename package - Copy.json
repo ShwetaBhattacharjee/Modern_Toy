@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "start": "GENERATE_SOURCEMAP=false react-scripts start", [/*"react-app-rewired start"*/],
+    "start": "GENERATE_SOURCEMAP=false react-scripts start", 
     "build": "react-app-rewired build",
     "test": "react-app-rewired test",
     "eject": "react-scripts eject"

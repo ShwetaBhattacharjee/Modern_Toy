@@ -1,6 +1,8 @@
 /*Author:Shweta Bhattacharjee
 Date:31-01-2023
-Fixed: 05-10-2025 - Fixed ethereum object detection*/
+Fixed: 05-10-2025 - Fixed ethereum object detection
+Updated: 10-10-2025 - Fixed NFT image display by fetching metadata*/
+
 import Web3 from 'web3'
 import { setGlobalState, getGlobalState, setAlert } from './store'
 import abi from './abis/MetadNFT.json'
@@ -171,29 +173,116 @@ const getAllNFTs = async () => {
     const nfts = await contract.methods.getAllNFTs().call()
     const transactions = await contract.methods.getAllTransactions().call()
     
-    setGlobalState('nfts', structuredNfts(nfts))
-    setGlobalState('transactions', structuredNfts(transactions))
+    // ✅ FIX: Use async version to fetch metadata
+    const structuredNFTs = await structuredNfts(nfts)
+    const structuredTransactions = await structuredNfts(transactions)
+    
+    setGlobalState('nfts', structuredNFTs)
+    setGlobalState('transactions', structuredTransactions)
   } catch (error) {
     reportError(error)
   }
 }
 
-const structuredNfts = (nfts) => {
+// ✅ OPTIMIZED: Fetch metadata with caching and faster gateways
+const structuredNfts = async (nfts) => {
   const web3 = initWeb3()
   if (!web3) return []
   
-  return nfts
-    .map((nft) => ({
-      id: Number(nft.id),
-      owner: nft.owner.toLowerCase(),
-      cost: web3.utils.fromWei(nft.cost),
-      title: nft.title,
-      description: nft.description,
-      metadataURI: nft.metadataURI,
-      imgURI: nft.metadataURI.replace("ipfs://", "https://ipfs.io/ipfs/"),
-      timestamp: nft.timestamp,
-    }))
-    .reverse()
+  // Handle empty array
+  if (!nfts || nfts.length === 0) return []
+  
+  // Use faster IPFS gateways in order of preference
+  const gateways = [
+    'https://cf-ipfs.com/ipfs/',
+    'https://dweb.link/ipfs/',
+    'https://ipfs.io/ipfs/'
+  ]
+  
+  // Map through all NFTs and fetch their metadata
+  const structuredNFTs = await Promise.all(
+    nfts.map(async (nft) => {
+      try {
+        // Convert IPFS URI to HTTP gateway URL if needed
+        let metadataURL = nft.metadataURI
+        if (metadataURL.startsWith('ipfs://')) {
+          const cid = metadataURL.replace('ipfs://', '')
+          metadataURL = `${gateways[0]}${cid}` // Use fastest gateway
+        } else if (metadataURL.includes('gateway.lighthouse.storage')) {
+          const cid = metadataURL.split('/ipfs/')[1]
+          metadataURL = `${gateways[0]}${cid}`
+        }
+        
+        console.log('Fetching metadata from:', metadataURL)
+        
+        // Fetch the metadata JSON with shorter timeout for faster failure
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 5000) // 5 second timeout
+        
+        const response = await fetch(metadataURL, { 
+          signal: controller.signal,
+          // Add cache control for faster subsequent loads
+          cache: 'force-cache'
+        })
+        clearTimeout(timeoutId)
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+        
+        const metadata = await response.json()
+        
+        console.log('✅ Metadata loaded for NFT', nft.id)
+        
+        // ✅ Extract the image URL from metadata and use fastest gateway
+        let imageURL = metadata.image || metadata.imageUrl || ''
+        
+        // Convert ANY IPFS URLs to use cloudflare gateway (fastest)
+        if (imageURL.startsWith('ipfs://')) {
+          const cid = imageURL.replace('ipfs://', '')
+          imageURL = `${gateways[0]}${cid}`
+        } else if (imageURL.includes('gateway.lighthouse.storage') || imageURL.includes('lighthouse.storage')) {
+          const cid = imageURL.split('/ipfs/')[1]
+          if (cid) {
+            imageURL = `${gateways[0]}${cid}`
+          }
+        } else if (imageURL.includes('ipfs.io')) {
+          // Replace ipfs.io with cloudflare (faster)
+          const cid = imageURL.split('/ipfs/')[1]
+          imageURL = `${gateways[0]}${cid}`
+        }
+        
+        console.log('Image URL for NFT', nft.id, ':', imageURL)
+        
+        return {
+          id: Number(nft.id),
+          owner: nft.owner.toLowerCase(),
+          cost: web3.utils.fromWei(nft.cost),
+          title: nft.title || metadata.name || 'Untitled',
+          description: nft.description || metadata.description || 'No description',
+          metadataURI: nft.metadataURI,
+          imgURI: imageURL, // ✅ This is the actual image URL from metadata
+          timestamp: nft.timestamp,
+        }
+      } catch (error) {
+        console.error('⚠️ Error fetching metadata for NFT', nft.id, ':', error.message)
+        
+        // Return NFT with fallback values if metadata fetch fails
+        return {
+          id: Number(nft.id),
+          owner: nft.owner.toLowerCase(),
+          cost: web3.utils.fromWei(nft.cost),
+          title: nft.title || 'Loading...',
+          description: nft.description || 'Loading metadata...',
+          metadataURI: nft.metadataURI,
+          imgURI: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="400"%3E%3Crect fill="%23374151" width="400" height="400"/%3E%3Ctext fill="%239CA3AF" font-family="sans-serif" font-size="18" x="50%25" y="50%25" text-anchor="middle" dominant-baseline="middle"%3ELoading...%3C/text%3E%3C/svg%3E',
+          timestamp: nft.timestamp,
+        }
+      }
+    })
+  )
+  
+  return structuredNFTs.reverse()
 }
 
 const updateNFT = async ({ id, cost }) => {
